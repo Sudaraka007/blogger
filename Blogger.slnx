@@ -4,4 +4,11 @@
     <Project Path="src/Blogger.Persistence/Blogger.Persistence.csproj" />
     <Project Path="src/Blogger.Api/Blogger.Api.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Blogger.Domain.Tests/Blogger.Domain.Tests.csproj" />
+    <Project Path="tests/Blogger.Persistence.Tests/Blogger.Persistence.Tests.csproj" />
+    <Project Path="tests/Blogger.Api.Tests.Unit/Blogger.Api.Tests.Unit.csproj" />
+    <Project Path="tests/Blogger.Api.Tests.Integration/Blogger.Api.Tests.Integration.csproj" />
+    <Project Path="tests/Blogger.Api.Tests.E2E/Blogger.Api.Tests.E2E.csproj" />
+  </Folder>
 </Solution>

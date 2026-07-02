@@ -6,9 +6,12 @@ using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddBloggerPersistence(
-    builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
+if (!builder.Environment.IsEnvironment("E2E"))
+{
+    builder.Services.AddBloggerPersistence(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
+}
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateAuthorRequestValidator>();
 builder.Services.AddFluentValidationAutoValidation();
