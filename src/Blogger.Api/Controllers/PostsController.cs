@@ -3,6 +3,7 @@ using Blogger.Domain.UseCases.Posts.CreatePost;
 using Blogger.Domain.UseCases.Posts.GetPostById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Blogger.Api.Controllers;
 
@@ -16,7 +17,7 @@ public sealed class PostsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(PostResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
-        [FromBody] CreatePostRequest request,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Disallow)] CreatePostRequest request,
         CancellationToken cancellationToken)
     {
         var post = await mediator.Send(

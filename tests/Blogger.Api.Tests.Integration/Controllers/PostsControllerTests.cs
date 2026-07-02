@@ -46,6 +46,18 @@ public sealed class PostsControllerTests : IClassFixture<BloggerWebApplicationFa
     }
 
     [Fact]
+    public async Task Create_returns_bad_request_when_body_is_missing()
+    {
+        using var content = new StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/api/posts", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        _factory.MediatorMock.Verify(
+            m => m.Send(It.IsAny<CreatePostCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Create_returns_bad_request_when_title_is_missing()
     {
         var response = await _client.PostAsJsonAsync(

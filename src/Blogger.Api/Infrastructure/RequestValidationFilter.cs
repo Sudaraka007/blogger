@@ -1,5 +1,7 @@
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Blogger.Api.Infrastructure;
 
@@ -9,8 +11,28 @@ public sealed class RequestValidationFilter : IAsyncActionFilter
         ActionExecutingContext context,
         ActionExecutionDelegate next)
     {
-        foreach (var argument in context.ActionArguments.Values)
+        foreach (var parameter in context.ActionDescriptor.Parameters)
         {
+            if (parameter.ParameterType == typeof(CancellationToken))
+            {
+                continue;
+            }
+
+            var isBodyParameter = parameter.BindingInfo?.BindingSource is { } bindingSource
+                && bindingSource.CanAcceptDataFrom(BindingSource.Body);
+
+            context.ActionArguments.TryGetValue(parameter.Name!, out var argument);
+
+            if (isBodyParameter && argument is null)
+            {
+                throw new ValidationException(
+                [
+                    new ValidationFailure(
+                        parameter.Name!,
+                        "Request body is required.")
+                ]);
+            }
+
             if (argument is null)
             {
                 continue;

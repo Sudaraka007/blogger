@@ -45,6 +45,18 @@ public sealed class AuthorsControllerTests : IClassFixture<BloggerWebApplication
     }
 
     [Fact]
+    public async Task Create_returns_bad_request_when_body_is_missing()
+    {
+        using var content = new StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/api/authors", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        _factory.MediatorMock.Verify(
+            m => m.Send(It.IsAny<CreateAuthorCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Create_returns_bad_request_when_name_is_missing()
     {
         var response = await _client.PostAsJsonAsync(

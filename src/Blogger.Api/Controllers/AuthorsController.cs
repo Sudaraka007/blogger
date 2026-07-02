@@ -3,6 +3,7 @@ using Blogger.Domain.UseCases.Authors.CreateAuthor;
 using Blogger.Domain.UseCases.Authors.GetAuthorById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Blogger.Api.Controllers;
 
@@ -15,7 +16,7 @@ public sealed class AuthorsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(AuthorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
-        [FromBody] CreateAuthorRequest request,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Disallow)] CreateAuthorRequest request,
         CancellationToken cancellationToken)
     {
         var author = await mediator.Send(
