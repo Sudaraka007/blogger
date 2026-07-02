@@ -17,8 +17,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateAuthorRequestValidato
 builder.Services.AddControllers(options =>
     {
         options.Filters.Add<RequestValidationFilter>();
-    })
-    .AddXmlSerializerFormatters();
+    });
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;

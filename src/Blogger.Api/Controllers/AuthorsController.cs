@@ -8,6 +8,7 @@ namespace Blogger.Api.Controllers;
 
 [ApiController]
 [Route("api/authors")]
+[Produces("application/json")]
 public sealed class AuthorsController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
