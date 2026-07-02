@@ -12,7 +12,8 @@ builder.Services.AddBloggerPersistence(
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateAuthorRequestValidator>();
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddXmlSerializerFormatters();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddProblemDetails();

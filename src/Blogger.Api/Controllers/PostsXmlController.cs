@@ -1,4 +1,5 @@
-using Blogger.Api.Contracts.Posts;
+using Blogger.Api.Mappers.Posts;
+using Blogger.Api.XmlContracts.Posts;
 using Blogger.Domain.UseCases.Posts.CreatePost;
 using Blogger.Domain.UseCases.Posts.GetPostById;
 using MediatR;
@@ -7,16 +8,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace Blogger.Api.Controllers;
 
 [ApiController]
-[Route("api/posts")]
-[Produces("application/json")]
-public sealed class PostsController(IMediator mediator) : ControllerBase
+[Route("api/xml/posts")]
+[Produces("application/xml")]
+public sealed class PostsXmlController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
-    [Consumes("application/json")]
-    [ProducesResponseType(typeof(PostResponse), StatusCodes.Status201Created)]
+    [Consumes("application/xml")]
+    [ProducesResponseType(typeof(PostXmlResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
-        [FromBody] CreatePostRequest request,
+        [FromBody] CreatePostXmlRequest request,
         CancellationToken cancellationToken)
     {
         var post = await mediator.Send(
@@ -26,11 +27,11 @@ public sealed class PostsController(IMediator mediator) : ControllerBase
         return CreatedAtAction(
             nameof(GetById),
             new { id = post.Id },
-            PostResponse.FromDomain(post));
+            PostXmlMapper.ToXml(post));
     }
 
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(PostResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PostXmlResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(
         int id,
@@ -41,6 +42,6 @@ public sealed class PostsController(IMediator mediator) : ControllerBase
 
         return post is null
             ? NotFound()
-            : Ok(PostResponse.FromDetails(post));
+            : Ok(PostXmlMapper.ToXml(post));
     }
 }
