@@ -1,4 +1,10 @@
+using Blogger.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddBloggerPersistence(
+    builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
 
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();

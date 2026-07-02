@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Blogger.Domain/Blogger.Domain.csproj" />
+    <Project Path="src/Blogger.Persistence/Blogger.Persistence.csproj" />
     <Project Path="src/Blogger.Api/Blogger.Api.csproj" />
   </Folder>
 </Solution>
