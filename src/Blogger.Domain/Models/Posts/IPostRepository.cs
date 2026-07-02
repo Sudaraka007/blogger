@@ -1,4 +1,4 @@
-namespace Blogger.Domain.Authors;
+namespace Blogger.Domain.Models.Posts;
 
 public interface IPostRepository
 {

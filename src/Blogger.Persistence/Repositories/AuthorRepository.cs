@@ -1,4 +1,5 @@
-using Blogger.Domain.Authors;
+using Blogger.Domain.Models.Authors;
+using Blogger.Domain.Models.Posts;
 using Blogger.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using AuthorEntity = Blogger.Persistence.Entities.Author;
@@ -58,26 +59,22 @@ public class AuthorRepository(BloggerDbContext dbContext) : IAuthorRepository
         return ToDomain(existing);
     }
 
-    private static Author ToDomain(AuthorEntity entity, bool includePosts = false) => new()
-    {
-        Id = entity.Id,
-        Name = entity.Name,
-        Surname = entity.Surname,
-        Removed = entity.Removed,
-        Posts = includePosts
-            ? entity.Posts.Select(PostMapper.ToDomain).ToList()
-            : []
-    };
+    private static Author ToDomain(AuthorEntity entity, bool includePosts = false) =>
+        Author.Reconstitute(
+            entity.Id,
+            entity.Name,
+            entity.Surname,
+            entity.Removed,
+            includePosts ? entity.Posts.Select(PostMapper.ToDomain) : []);
 }
 
 internal static class PostMapper
 {
-    public static Post ToDomain(PostEntity entity) => new()
-    {
-        Id = entity.Id,
-        Title = entity.Title,
-        Description = entity.Description,
-        Content = entity.Content,
-        Removed = entity.Removed
-    };
+    public static Post ToDomain(PostEntity entity) =>
+        Post.Reconstitute(
+            entity.Id,
+            entity.Title,
+            entity.Description,
+            entity.Content,
+            entity.Removed);
 }

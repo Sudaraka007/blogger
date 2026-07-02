@@ -1,4 +1,4 @@
-using Blogger.Domain.Authors;
+using Blogger.Domain.Models.Posts;
 using Blogger.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 using PostEntity = Blogger.Persistence.Entities.Post;
@@ -40,14 +40,6 @@ public class PostRepository(BloggerDbContext dbContext) : IPostRepository
 
     public async Task<Post> SaveAsync(int authorId, Post post, CancellationToken cancellationToken = default)
     {
-        var authorExists = await dbContext.Authors
-            .AnyAsync(a => a.Id == authorId && !a.Removed, cancellationToken);
-
-        if (!authorExists)
-        {
-            throw new InvalidOperationException($"Author {authorId} was not found.");
-        }
-
         if (post.Id == 0)
         {
             var entity = new PostEntity

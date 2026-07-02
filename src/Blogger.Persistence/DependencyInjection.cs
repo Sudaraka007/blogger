@@ -1,4 +1,8 @@
-using Blogger.Domain.Authors;
+using Blogger.Domain;
+using Blogger.Domain.Abstractions;
+using Blogger.Domain.Models.Authors;
+using Blogger.Domain.Models.Posts;
+using Blogger.Domain.UseCases.Posts.GetPostById;
 using Blogger.Persistence.Data;
 using Blogger.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +19,13 @@ public static class DependencyInjection
         services.AddDbContext<BloggerDbContext>(options =>
             options.UseMySQL(connectionString));
 
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         services.AddScoped<IAuthorRepository, AuthorRepository>();
         services.AddScoped<IPostRepository, PostRepository>();
+        services.AddScoped<IPostDetailsRepository, PostDetailsRepository>();
+
+        services.AddBloggerDomain();
 
         return services;
     }
