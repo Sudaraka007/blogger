@@ -32,5 +32,28 @@ public sealed class UnitOfWorkTests : IDisposable
                 CancellationToken.None));
     }
 
+    [Fact]
+    public async Task ExecuteInTransactionAsync_commits_successful_changes()
+    {
+        var author = await SeedData.AuthorAsync(_context.DbContext);
+
+        await _unitOfWork.ExecuteInTransactionAsync(
+            async cancellationToken =>
+            {
+                _context.DbContext.Posts.Add(new Blogger.Persistence.Entities.Post
+                {
+                    AuthorId = author.Id,
+                    Title = "Transactional",
+                    Removed = false
+                });
+
+                await _context.DbContext.SaveChangesAsync(cancellationToken);
+                return true;
+            },
+            CancellationToken.None);
+
+        Assert.Single(_context.DbContext.Posts.Where(post => post.Title == "Transactional"));
+    }
+
     public void Dispose() => _context.Dispose();
 }

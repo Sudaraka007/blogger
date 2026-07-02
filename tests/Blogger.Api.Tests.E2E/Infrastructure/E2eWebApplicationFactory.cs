@@ -31,12 +31,19 @@ public sealed class E2eWebApplicationFactory : WebApplicationFactory<AuthorsCont
                     .ConfigureWarnings(warnings =>
                         warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
 
-            services.AddScoped<IUnitOfWork, PassthroughUnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IPostDetailsRepository, PostDetailsRepository>();
 
             services.AddBloggerDomain();
         });
+    }
+
+    public void ExecuteDbContext(Action<BloggerDbContext> action)
+    {
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<BloggerDbContext>();
+        action(dbContext);
     }
 }

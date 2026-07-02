@@ -2,7 +2,7 @@ using Blogger.Api.Infrastructure;
 using Blogger.Api.Validators.Authors;
 using Blogger.Persistence;
 using FluentValidation;
-using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,11 +14,18 @@ if (!builder.Environment.IsEnvironment("E2E"))
 }
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateAuthorRequestValidator>();
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<RequestValidationFilter>();
+    })
     .AddXmlSerializerFormatters();
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<DbUpdateExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();

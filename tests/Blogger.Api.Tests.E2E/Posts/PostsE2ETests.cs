@@ -8,10 +8,12 @@ namespace Blogger.Api.Tests.E2E.Posts;
 
 public sealed class PostsE2ETests : IClassFixture<E2eWebApplicationFactory>
 {
+    private readonly E2eWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
     public PostsE2ETests(E2eWebApplicationFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient();
     }
 
@@ -54,6 +56,25 @@ public sealed class PostsE2ETests : IClassFixture<E2eWebApplicationFactory>
         var response = await _client.PostAsJsonAsync(
             "/api/posts",
             new CreatePostRequest(9999, "Title", null, null));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_returns_bad_request_when_author_is_removed()
+    {
+        var authorId = await CreateAuthorAsync();
+
+        _factory.ExecuteDbContext(dbContext =>
+        {
+            var author = dbContext.Authors.Single(author => author.Id == authorId);
+            author.Removed = true;
+            dbContext.SaveChanges();
+        });
+
+        var response = await _client.PostAsJsonAsync(
+            "/api/posts",
+            new CreatePostRequest(authorId, "Title", null, null));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

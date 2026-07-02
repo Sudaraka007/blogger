@@ -10,6 +10,10 @@ using Moq;
 
 namespace Blogger.Api.Tests.Integration.Infrastructure;
 
+/// <summary>
+/// Integration tests mock <see cref="MediatR.IMediator"/> to exercise the HTTP/API layer in isolation.
+/// MediatR pipeline behaviors and handlers are covered by domain tests and E2E tests.
+/// </summary>
 public sealed class BloggerWebApplicationFactory : WebApplicationFactory<AuthorsController>
 {
     public Mock<IMediator> MediatorMock { get; } = new();

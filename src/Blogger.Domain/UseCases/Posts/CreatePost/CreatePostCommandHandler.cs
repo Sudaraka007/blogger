@@ -1,7 +1,6 @@
+using Blogger.Domain.Exceptions;
 using Blogger.Domain.Models.Authors;
 using Blogger.Domain.Models.Posts;
-using FluentValidation;
-using FluentValidation.Results;
 using MediatR;
 
 namespace Blogger.Domain.UseCases.Posts.CreatePost;
@@ -19,12 +18,9 @@ public sealed class CreatePostCommandHandler(
 
         if (author is null)
         {
-            throw new ValidationException(
-            [
-                new ValidationFailure(
-                    nameof(command.AuthorId),
-                    $"Author {command.AuthorId} was not found.")
-            ]);
+            throw new DomainValidationException(
+                nameof(command.AuthorId),
+                $"Author {command.AuthorId} was not found.");
         }
 
         var post = Post.Create(command.Title, command.Description, command.Content);

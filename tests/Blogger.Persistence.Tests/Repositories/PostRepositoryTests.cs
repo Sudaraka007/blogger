@@ -1,3 +1,4 @@
+using Blogger.Domain.Exceptions;
 using Blogger.Domain.Models.Posts;
 using Blogger.Persistence.Repositories;
 using Blogger.Persistence.Tests.Infrastructure;
@@ -39,6 +40,21 @@ public sealed class PostRepositoryTests : IDisposable
         Assert.Equal("Updated", updated.Title);
         Assert.Equal("Description", updated.Description);
         Assert.Equal("Content", updated.Content);
+    }
+
+    [Fact]
+    public async Task SaveAsync_throws_when_author_is_removed()
+    {
+        var author = await SeedData.AuthorAsync(_context.DbContext, removed: true);
+        var post = Post.Create("Title", null, null);
+
+        var exception = await Assert.ThrowsAsync<DomainValidationException>(
+            () => _repository.SaveAsync(author.Id, post));
+
+        Assert.Contains(
+            exception.Failures,
+            failure => failure.PropertyName == "AuthorId"
+                && failure.ErrorMessage == $"Author {author.Id} was not found.");
     }
 
     [Fact]

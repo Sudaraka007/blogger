@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using Blogger.Domain.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +12,22 @@ public sealed class ValidationExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        if (exception is not ValidationException validationException)
+        var errors = exception switch
+        {
+            ValidationException validationException => validationException.Errors
+                .Select(error => new DomainValidationFailure(error.PropertyName, error.ErrorMessage))
+                .ToList(),
+            DomainValidationException domainValidationException => domainValidationException.Failures,
+            _ => null
+        };
+
+        if (errors is null)
         {
             return false;
         }
 
         var problemDetails = new ValidationProblemDetails(
-            validationException.Errors
+            errors
                 .GroupBy(error => error.PropertyName)
                 .ToDictionary(
                     group => group.Key,
@@ -30,10 +39,11 @@ public sealed class ValidationExceptionHandler : IExceptionHandler
             Instance = httpContext.Request.Path
         };
 
-        problemDetails.Extensions["traceId"] = Activity.Current?.Id ?? httpContext.TraceIdentifier;
-
         httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        await ProblemDetailsResponseWriter.WriteValidationAsync(
+            httpContext,
+            problemDetails,
+            cancellationToken);
         return true;
     }
 }

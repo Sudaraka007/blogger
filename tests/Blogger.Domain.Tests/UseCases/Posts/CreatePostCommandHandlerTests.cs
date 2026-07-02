@@ -1,7 +1,7 @@
+using Blogger.Domain.Exceptions;
 using Blogger.Domain.Models.Authors;
 using Blogger.Domain.Models.Posts;
 using Blogger.Domain.UseCases.Posts.CreatePost;
-using FluentValidation;
 using Moq;
 
 namespace Blogger.Domain.Tests.UseCases.Posts;
@@ -56,11 +56,11 @@ public sealed class CreatePostCommandHandlerTests
             .Setup(repository => repository.GetByIdAsync(9999, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Author?)null);
 
-        var exception = await Assert.ThrowsAsync<ValidationException>(
+        var exception = await Assert.ThrowsAsync<DomainValidationException>(
             () => _handler.Handle(command, CancellationToken.None));
 
         Assert.Contains(
-            exception.Errors,
+            exception.Failures,
             failure => failure.PropertyName == nameof(command.AuthorId)
                 && failure.ErrorMessage == "Author 9999 was not found.");
 

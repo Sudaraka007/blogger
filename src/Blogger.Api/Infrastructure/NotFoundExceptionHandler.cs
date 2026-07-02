@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,10 +25,11 @@ public sealed class NotFoundExceptionHandler : IExceptionHandler
             Instance = httpContext.Request.Path
         };
 
-        problemDetails.Extensions["traceId"] = Activity.Current?.Id ?? httpContext.TraceIdentifier;
-
         httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        await ProblemDetailsResponseWriter.WriteAsync(
+            httpContext,
+            problemDetails,
+            cancellationToken);
         return true;
     }
 }

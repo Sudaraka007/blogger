@@ -5,6 +5,8 @@ using System.Text;
 using System.Xml.Linq;
 using Blogger.Api.Contracts.Authors;
 using Blogger.Api.Tests.E2E.Infrastructure;
+using Blogger.Api.Infrastructure;
+using Blogger.Api.XmlContracts.ProblemDetails;
 using Blogger.Api.XmlContracts.Posts;
 
 namespace Blogger.Api.Tests.E2E.Posts;
@@ -56,6 +58,27 @@ public sealed class PostsXmlE2ETests : IClassFixture<E2eWebApplicationFactory>
         var response = await _client.PostAsync("/api/xml/posts", content);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_returns_bad_request_when_author_does_not_exist()
+    {
+        using var content = new StringContent(
+            CreatePostXml(9999, "XML Title", null, null),
+            Encoding.UTF8,
+            "application/xml");
+
+        var response = await _client.PostAsync("/api/xml/posts", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/xml", response.Content.Headers.ContentType?.MediaType);
+
+        var document = XDocument.Parse(await response.Content.ReadAsStringAsync());
+        var root = document.Root;
+
+        Assert.NotNull(root);
+        Assert.Equal("ValidationProblemDetails", root.Name.LocalName);
+        Assert.Equal(XmlProblemNamespaces.Contract, root.Name.NamespaceName);
     }
 
     [Fact]

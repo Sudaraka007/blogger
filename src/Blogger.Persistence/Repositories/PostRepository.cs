@@ -1,3 +1,4 @@
+using Blogger.Domain.Exceptions;
 using Blogger.Domain.Models.Posts;
 using Blogger.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,17 @@ public class PostRepository(BloggerDbContext dbContext) : IPostRepository
     {
         if (post.Id == 0)
         {
+            var authorIsActive = await dbContext.Authors
+                .AsNoTracking()
+                .AnyAsync(a => a.Id == authorId && !a.Removed, cancellationToken);
+
+            if (!authorIsActive)
+            {
+                throw new DomainValidationException(
+                    "AuthorId",
+                    $"Author {authorId} was not found.");
+            }
+
             var entity = new PostEntity
             {
                 AuthorId = authorId,
