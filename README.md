@@ -27,7 +27,7 @@ dotnet run --project src/Blogger.Api
 
 Default URLs: `http://localhost:5122` (HTTP), `https://localhost:7184` (HTTPS).
 
-Docker (API + DB): `docker compose up --build` 뿯↽ API at `http://localhost:8080`.
+Docker (API + DB): `docker compose up --build` applies migrations on startup and serves the API at `http://localhost:8080`.
 
 ## Tests
 

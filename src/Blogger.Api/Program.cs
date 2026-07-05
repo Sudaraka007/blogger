@@ -31,6 +31,8 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+await app.ApplyMigrationsAsync();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

@@ -128,6 +128,17 @@ public sealed class PostsControllerTests : IClassFixture<BloggerWebApplicationFa
     }
 
     [Fact]
+    public async Task GetById_returns_bad_request_when_includeAuthor_is_invalid()
+    {
+        var response = await _client.GetAsync("/api/posts/1?includeAuthor=not-a-bool");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        _factory.MediatorMock.Verify(
+            m => m.Send(It.IsAny<GetPostByIdQuery>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GetById_returns_not_found_when_post_does_not_exist()
     {
         _factory.MediatorMock

@@ -11,6 +11,23 @@ public sealed class RequestValidationFilter : IAsyncActionFilter
         ActionExecutingContext context,
         ActionExecutionDelegate next)
     {
+        if (!context.ModelState.IsValid)
+        {
+            var failures = context.ModelState
+                .Where(entry => entry.Value?.Errors.Count > 0)
+                .SelectMany(entry => entry.Value!.Errors.Select(error => new ValidationFailure(
+                    entry.Key,
+                    string.IsNullOrEmpty(error.ErrorMessage)
+                        ? "The value is invalid."
+                        : error.ErrorMessage)))
+                .ToList();
+
+            if (failures.Count > 0)
+            {
+                throw new ValidationException(failures);
+            }
+        }
+
         foreach (var parameter in context.ActionDescriptor.Parameters)
         {
             if (parameter.ParameterType == typeof(CancellationToken))
